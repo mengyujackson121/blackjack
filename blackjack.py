@@ -1,4 +1,7 @@
+from typing import List
 import random
+import card
+Hand = List[card.Card]
 
 rank_only = False
 stop_game = False
@@ -19,40 +22,22 @@ def winner(play, deal):
         return False
 
 
-def cal_value(hand):
+def cal_value(hand: Hand):
     num_aces = 0
     value = 0
 
     for card_v in hand:
+        rank = card_v.rank
 
-        if rank_only is True:
-            rank = card_v
-
-            if rank == "10" or rank == "J" or rank == "Q" or rank == "K":
-                value = value + 10
-
-            elif rank == "A":
-                num_aces += 1
-                value = value + 1
-
-            else:
-                value = value + int(rank)
-
+        if rank == "10" or rank == "J" or rank == "Q" or rank == "K":
+            value = value + 10
+        elif rank == "A":
+            num_aces += 1
+            value = value + 1
         else:
-            rank = card_v[:-1]
-
-            if rank == "10" or rank == "J" or rank == "Q" or rank == "K":
-                value = value + 10
-
-            elif rank == "A":
-                num_aces += 1
-                value = value + 1
-
-            else:
-                value = value + int(rank)
+            value = value + int(rank)
 
     for i in range(num_aces):
-
         if value <= 11:
             value += 10
 
@@ -61,7 +46,6 @@ def cal_value(hand):
 
 def get_card(role, card):
     role.append(card.pop(random.randrange(len(card))))
-
 
 def result(player_, dealer_):
     print("Player: ", player, cal_value(player), 'Value: ', cal_value(player_))
@@ -81,14 +65,11 @@ while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
     print(put_down)
     win = False
     bj = False
+    card_deck = card.standard_deck()
     if input('Rank or Not? (r to Rank only: )') == 'r':
-        card_deck = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"] * 4
         rank_only = True
 
     else:
-        card_deck = [rank + suit
-                     for rank in ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
-                     for suit in ("C", "D", "H", "S")]
         rank_only = False
 
     player = []
@@ -97,6 +78,7 @@ while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
     while len(dealer) < 2:
         get_card(player, card_deck)
         get_card(dealer, card_deck)
+
     if len(dealer) == 2 and len(player) == 2:
         print("Player: ", player, 'Value: ', cal_value(player))
         dealer_hand_show = [dealer[0]]
