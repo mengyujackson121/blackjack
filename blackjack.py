@@ -1,23 +1,42 @@
 from typing import List
 import random
 import card
+from player import Player
 Hand = List[card.Card]
 
 
 def main():
-    rank_only = False
     money = 100
-    shift = 0
+    size = 0
+    size = get_player_size(size)
+    list_player = []
+    for i in range(size):
+        new_player = Player(name="player " + str(i+1))
+        list_player.append(new_player)
+        choice_rank(new_player)
 
-    card_deck, put_down = start_game(money)
-    rank_only = choice_rank()
-    # shift = get_player_size(shift)
-    player, dealer = get_start_hands(card_deck)
-    player_turn(player, dealer, card_deck, rank_only)
-    dealer_turn(dealer, card_deck)
-    win = check_winner(player, dealer, rank_only)
-    money = give_money(win, money, put_down, player)
-    is_enough_money(money)
+    while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
+        card_deck = start_game()
+        for p in list_player:
+            down(p)
+        for p in list_player:
+            p.hand = []
+            get_start_hands(card_deck, p.hand)
+        dealer_hand = []
+        get_start_hands(card_deck, dealer_hand)
+        for p in list_player:
+            player_turn(card_deck, p)
+        dealer_turn(dealer_hand, card_deck)
+        for p in list_player:
+            win = check_winner(p, dealer_hand)
+            give_money(win, p)
+        next_list = []
+        for p in list_player:
+            if is_enough_money(p):
+                next_list.append(p)
+        list_player = next_list
+        if len(list_player) == 0:
+            quit()
 
 
 def display_list(hand, rank_only):
@@ -67,64 +86,55 @@ def get_card(role, card_deck):
     role.append(card_deck.pop(random.randrange(len(card_deck))))
 
 
-def result(player_, dealer_, rank_only):
-    print("Player: ", display_list(player_, rank_only), cal_value(player_), 'Value: ', cal_value(player_))
-    print("Dealer: ", display_list(dealer_, rank_only), cal_value(dealer_), 'Value: ', cal_value(dealer_))
+def result(player: Player, dealer_hand,):
+    print("Player: ", display_list(player.hand, player.rank_only), cal_value(player.hand), 'Value: ', cal_value(player.hand))
+    print("Dealer: ", display_list(dealer_hand, player.rank_only), cal_value(dealer_hand), 'Value: ', cal_value(dealer_hand))
 
 
-def down(money_):
-    val = int(input("How much down? (1 - " + str(money_) + "): "))
-    if 0 >= val or val > money_:
-        print("Error: You don't have that much Money!")
-        return down(money_)
-    return val
-
-
-def start_game(money):
-    while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
-        put_down = down(money)
-        print(put_down)
-        card_deck = card.standard_deck()
-        return card_deck, put_down
-
-
-def choice_rank():
-    if input('Rank or Not? (r to Rank only: )') == 'r':
-        rank_only = True
-    else:
-        rank_only = False
-    return rank_only
-
-
-def get_player_size(shift):
-    while 1 > shift or 5 < shift:
+def down(player: Player):
+    while True:
         try:
-            shift = int(input("Please enter your players (1 - 5) : "))
-            return shift
+            val = int(input(player.name + ": How much down? (1 - " + str(player.money) + "): "))
+            if val in range(1, player.money + 1):
+                player.bet_amount = val
+                return
         except ValueError:
-            get_player_size(shift)
+            print("Oops!  That was no valid number.  Try again...")
 
 
-def get_start_hands(card_deck):
-    dealer = []
-    player = []
-    while len(dealer) < 2:
-        get_card(player, card_deck)
-        get_card(dealer, card_deck)
-    return player, dealer
+def start_game():
+    card_deck = card.standard_deck()
+    return card_deck
 
 
-def player_turn(player, dealer, card_deck, rank_only):
-    while input('Hit or Stay? (h to hit, any else for stay: )') == 'h':
-        get_card(player, card_deck)
-        print(display_list(player, rank_only), 'Value: ', cal_value(player))
-        if cal_value(player) == 21:
-            print("Player Win! 21 point!")
-            result(player, dealer, rank_only)
-            return
+def choice_rank(player: Player):
+    if input(player.name + ': Rank or Not? (r to Rank only: )') == 'r':
+        player.rank_only = True
+    else:
+        player.rank_only = False
 
-        elif cal_value(player) > 21:
-            result(player, dealer, rank_only)
+
+def get_player_size(size):
+    while 1 > size or 5 < size:
+        try:
+            size = int(input("Please enter your players (1 - 5) : "))
+            print("Number of The Player: " + str(size))
+            return size
+        except ValueError:
+            return get_player_size(size)
+
+
+def get_start_hands(card_deck, hand):
+    while len(hand) < 2:
+        get_card(hand, card_deck)
+
+
+def player_turn(card_deck, player: Player):
+    print(display_list(player.hand, player.rank_only), 'Value: ', cal_value(player.hand))
+    while input(player.name + ': Hit or Stay? (h to hit, any else for stay: )') == 'h':
+        get_card(player.hand, card_deck)
+        print(display_list(player.hand, player.rank_only), 'Value: ', cal_value(player.hand))
+        if cal_value(player.hand) >= 21:
             return
 
 
@@ -135,36 +145,38 @@ def dealer_turn(dealer, card_deck):
             return
 
 
-def check_winner(player, dealer, rank_only):
-    if cal_value(player) <= 21 and cal_value(dealer) <= 21:
-        result(player, dealer, rank_only)
-        return winner(player, dealer)
+def check_winner(player: Player, dealer):
+    if cal_value(player.hand) <= 21 and cal_value(dealer) <= 21:
+        result(player, dealer)
+        return winner(player.hand, dealer)
 
-    elif cal_value(player) > 21:
-        result(player, dealer, rank_only)
+    elif cal_value(player.hand) > 21:
+        result(player, dealer)
         print("Player Lose! Over 21!")
         return False
 
     else:
-        result(player, dealer, rank_only)
+        result(player, dealer)
         print("Dealer Lose! Over 21!")
         return True
 
 
-def give_money(win, money, put_down, player):
-    if win is True and len(player) == 2:
-        money = money + put_down * 2
+def give_money(win, player: Player):
+    if win is True and len(player.hand) == 2:
+        player.money = player.money + player.bet_amount * 2
     elif win is True:
-        money = money + put_down
+        player.money = player.money + player.bet_amount
     else:
-        money = money - put_down
-    print("total :", money)
-    return money
+        player.money = player.money - player.bet_amount
+    print("total :", player.money)
 
 
-def is_enough_money(money):
-    if money <= 0:
-        quit()
+def is_enough_money(player: Player):
+    if player.money <= 0:
+        print(player.name + "Don't have money!")
+        return False
+    else:
+        return True
 
 
 if __name__ == '__main__':
