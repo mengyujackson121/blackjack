@@ -6,8 +6,10 @@ class Player:
         self.bet_amount = 0
         self.hand = []
         self.rank_only = True
+        self.soft_hit = True
     def __str__(self):
-        return "{:8.8} -> Money: {:5} Down: {:5} Hand: {}".format(self.name, self.money, self.bet_amount, self.hand)
+        return "{:8.8} -> Money: {:5} Down: {:5} Hit: {} Hand: {}".format(
+            self.name, self.money, self.bet_amount, self.soft_hit, self.hand)
 
     def __repr__(self):
         return self.name

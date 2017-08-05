@@ -6,10 +6,11 @@ Hand = List[card.Card]
 
 
 def main():
-    money = 100
     size = 0
     size = get_player_size(size)
     list_player = []
+    s17 = dealer_type()
+
     for i in range(size):
         new_player = Player(name="player " + str(i+1))
         list_player.append(new_player)
@@ -26,7 +27,7 @@ def main():
         get_start_hands(card_deck, dealer_hand)
         for p in list_player:
             player_turn(card_deck, p)
-        dealer_turn(dealer_hand, card_deck)
+        dealer_turn(dealer_hand, card_deck, s17)
         for p in list_player:
             win = check_winner(p, dealer_hand)
             give_money(win, p)
@@ -37,6 +38,15 @@ def main():
         list_player = next_list
         if len(list_player) == 0:
             quit()
+
+
+def dealer_type():
+    while True:
+        soft_hard = input("If is a Soft-Hit Game? Type in s ") == 's'
+        if soft_hard == 's':
+            return True
+        else:
+            return False
 
 
 def display_list(hand, rank_only):
@@ -60,26 +70,42 @@ def winner(play, deal):
         return False
 
 
+def is_soft(hand):
+    if len(cal_all_value(hand)) == 1:
+        return False
+    else:
+        return True
+
+
 def cal_value(hand: Hand):
+    return cal_all_value(hand)[-1]
+
+
+def cal_all_value(hand: Hand):
     num_aces = 0
     value = 0
-
+    value_list = []
     for card_v in hand:
+
         rank = card_v.rank
 
         if rank == "10" or rank == "J" or rank == "Q" or rank == "K":
             value = value + 10
         elif rank == "A":
-            num_aces += 1
             value = value + 1
+            num_aces = num_aces + 1
         else:
             value = value + int(rank)
-
-    for i in range(num_aces):
-        if value <= 11:
-            value += 10
-
-    return value
+    value_list.append(value)
+    count = 0
+    while count <= num_aces:
+        value = value + 10
+        if value <= 21:
+            value_list.append(value)
+            count = count + 1
+        else:
+            break
+    return value_list
 
 
 def get_card(role, card_deck):
@@ -87,8 +113,10 @@ def get_card(role, card_deck):
 
 
 def result(player: Player, dealer_hand,):
-    print("Player: ", display_list(player.hand, player.rank_only), cal_value(player.hand), 'Value: ', cal_value(player.hand))
-    print("Dealer: ", display_list(dealer_hand, player.rank_only), cal_value(dealer_hand), 'Value: ', cal_value(dealer_hand))
+    print("Player: ", display_list(player.hand, player.rank_only), cal_value(player.hand),
+          'Value: ', cal_value(player.hand))
+    print("Dealer: ", display_list(dealer_hand, player.rank_only), cal_value(dealer_hand),
+          'Value: ', cal_value(dealer_hand))
 
 
 def down(player: Player):
@@ -138,10 +166,19 @@ def player_turn(card_deck, player: Player):
             return
 
 
-def dealer_turn(dealer, card_deck):
-    while cal_value(dealer) < 17:
-        get_card(dealer, card_deck)
-        if cal_value(dealer) > 21:
+def dealer_turn(dealer, card_deck, s17):
+    if s17 is True:
+        while cal_value(dealer) < 17:
+            get_card(dealer, card_deck)
+
+    else:
+        if cal_value(dealer) <= 16:
+            get_card(dealer, card_deck)
+            dealer_turn(dealer, card_deck, s17)
+        elif cal_value(dealer) == 17 and is_soft(dealer) is True:
+            get_card(dealer, card_deck)
+            dealer_turn(dealer, card_deck, s17)
+        else:
             return
 
 
