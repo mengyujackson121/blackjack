@@ -1,20 +1,26 @@
 from typing import List
 import random
 import card
+import json
+from pprint import pprint
 from player import Player
+
 Hand = List[card.Card]
 
 
 def main():
-    size = 0
-    size = get_player_size(size)
+    with open('conf.json') as data_file:
+        data = json.load(data_file)
+        len(data["players"])
+
+    size = len(data["players"])
     list_player = []
-    s17 = dealer_type()
+    s17 = dealer_type(data["dealer"]["strategy"])
 
     for i in range(size):
-        new_player = Player(name="player " + str(i+1))
+        p_data = data["players"][i]
+        new_player = Player(name=p_data["name"], money=int(p_data["starting_money"]), rank_only=p_data["rank_only"], strategy=p_data["strategy"])
         list_player.append(new_player)
-        choice_rank(new_player)
 
     while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
         card_deck = start_game()
@@ -40,13 +46,11 @@ def main():
             quit()
 
 
-def dealer_type():
-    while True:
-        soft_hard = input("If is a Soft-Hit Game? Type in s ") == 's'
-        if soft_hard == 's':
-            return True
-        else:
-            return False
+def dealer_type(strategy):
+    if strategy == "S17":
+        return True
+    else:
+        return False
 
 
 def display_list(hand, rank_only):
@@ -98,7 +102,7 @@ def cal_all_value(hand: Hand):
             value = value + int(rank)
     value_list.append(value)
     count = 0
-    while count <= num_aces:
+    while count < num_aces:
         value = value + 10
         if value <= 21:
             value_list.append(value)
@@ -135,11 +139,11 @@ def start_game():
     return card_deck
 
 
-def choice_rank(player: Player):
-    if input(player.name + ': Rank or Not? (r to Rank only: )') == 'r':
-        player.rank_only = True
-    else:
-        player.rank_only = False
+# def choice_rank(player: Player):
+#     if input(player.name + ': Rank or Not? (r to Rank only: )') == 'r':
+#         player.rank_only = True
+#     else:
+#         player.rank_only = False
 
 
 def get_player_size(size):
@@ -210,7 +214,7 @@ def give_money(win, player: Player):
 
 def is_enough_money(player: Player):
     if player.money <= 0:
-        print(player.name + "Don't have money!")
+        print(player.name + " Don't have money!")
         return False
     else:
         return True

@@ -1,12 +1,12 @@
 
 class Player:
-    def __init__(self, name):
+    def __init__(self, name="new_player", money=100, rank_only=True, strategy="H17"):
         self.name = name
-        self.money = 100
+        self.money = money
         self.bet_amount = 0
         self.hand = []
-        self.rank_only = True
-        self.soft_hit = True
+        self.rank_only = rank_only
+        self.strategy = strategy
     def __str__(self):
         return "{:8.8} -> Money: {:5} Down: {:5} Hit: {} Hand: {}".format(
             self.name, self.money, self.bet_amount, self.soft_hit, self.hand)

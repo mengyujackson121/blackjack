@@ -9,31 +9,31 @@
             "name": "player 1",
             "starting_money": 100,
             "strategy": "player",
-            "type": "player"
+            "rank_only": true
         },
 		{
             "name": "player 2",
             "starting_money": 200,
             "strategy": "player",
-            "type": "player"
+            "rank_only": true
         },
 		{
             "name": "player 3",
             "starting_money": 300,
             "strategy": "player",
-            "type": "player"
+            "rank_only": false
         },
         {
             "name": "bot 1",
             "starting_money": 100,
             "strategy": "H17",
-            "type": "AI"
+            "rank_only": true
         },
         {
             "name": "bot 2",
             "starting_money": 200,
             "strategy": "S17",
-            "type": "AI"
+            "rank_only": false
         }
     ]
 }
