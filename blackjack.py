@@ -2,24 +2,22 @@ from typing import List
 import random
 import card
 import json
-from pprint import pprint
 from player import Player
-
+import argparse
 Hand = List[card.Card]
 
 
-def main():
-    with open('conf.json') as data_file:
-        data = json.load(data_file)
-        len(data["players"])
-
+def main(data):
     size = len(data["players"])
     list_player = []
     s17 = dealer_type(data["dealer"]["strategy"])
 
     for i in range(size):
         p_data = data["players"][i]
-        new_player = Player(name=p_data["name"], money=int(p_data["starting_money"]), rank_only=p_data["rank_only"], strategy=p_data["strategy"])
+        new_player = Player(name=p_data["name"],
+                            money=int(p_data["starting_money"]),
+                            rank_only=p_data["rank_only"],
+                            strategy=p_data["strategy"])
         list_player.append(new_player)
 
     while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
@@ -55,9 +53,9 @@ def dealer_type(strategy):
 
 def display_list(hand, rank_only):
     if rank_only:
-        return [card.rank for card in hand]
+        return [c.rank for c in hand]
     else:
-        return [str(card) for card in hand]
+        return [str(c) for c in hand]
 
 
 def winner(play, deal):
@@ -221,4 +219,14 @@ def is_enough_money(player: Player):
 
 
 if __name__ == '__main__':
-    main()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", help="read from this file")
+    args = parser.parse_args()
+    if args.config:
+        with open(args.config) as data_file:
+            __data = json.load(data_file)
+    else:
+        print("No config file!")
+        quit()
+    main(__data)

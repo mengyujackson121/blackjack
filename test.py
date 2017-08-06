@@ -1,16 +1,9 @@
-import random
-import json
-from pprint import pprint
+import argparse
 
-with open('conf.json') as data_file:
-    data = json.load(data_file)
-print(data["players"][0]["name"])
-
-
-size = int(input("size?"))
-
-lists = [[] for _ in range(size)]
-while input("input C:") != 'q':
-    for each in lists:
-        each.append(random.randrange(1, 10))
-    print(lists)
+parser = argparse.ArgumentParser()
+parser.add_argument("--config", help="read from this file")
+args = parser.parse_args()
+if args.config:
+    print("config read it!", args.config)
+else:
+    print("No config file!")
