@@ -29,7 +29,10 @@ def main(data):
             card_deck = start_game()
             for p in list_player:
                 if p.betting_strategy == 'ask':
-                    down(p)
+                    if p.bet_amount == 0:
+                        down(p)
+                    else:
+                        continue
                 elif p.betting_strategy == 'minimum':
                     val = data['minimum_bet']
                     if val in range(1, p.money + 1):
@@ -132,7 +135,8 @@ def get_card(role, card_deck):
 
 def result(player: Player, dealer_hand,):
     print(player.name, display_list(player.hand, player.rank_only),
-          "Value: ",cal_value(player.hand))
+          "Value: ",cal_value(player.hand),
+          "Bet Amount: ", player.bet_amount)
     print("Dealer", display_list(dealer_hand, player.rank_only),
           'Value: ', cal_value(dealer_hand))
 
