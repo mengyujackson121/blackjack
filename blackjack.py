@@ -11,6 +11,7 @@ def main(data):
     size = len(data["players"])
     list_player = []
     total_round = data["max_rounds"]
+    tie_behavior = data["tie_behavior"]
 
     for i in range(size):
         p_data = data["players"][i]
@@ -57,7 +58,7 @@ def main(data):
 
             dealer_turn(dealer_hand, card_deck, data['dealer']['strategy'])
             for p in list_player:
-                win = check_winner(p, dealer_hand)
+                win = check_winner(p, dealer_hand, tie_behavior)
                 give_money(win, p)
             next_list = []
             for p in list_player:
@@ -67,10 +68,12 @@ def main(data):
             if len(list_player) == 0:
                 quit()
             for p in list_player:
-                if check_winner(p, dealer_hand) is True:
-                    print(p.name, "WIN!  Total money: ", p.money)
-                else:
+                if check_winner(p, dealer_hand, tie_behavior) is True:
+                    print(">>>", p.name, "WIN!  Total money: ", p.money)
+                elif check_winner(p, dealer_hand, tie_behavior) is False:
                     print(">>>", p.name, "LOSE!  Total money: ", p.money)
+                else:
+                    print(">>>NO WINNER!", p.name, p.money)
 
 
 def display_list(hand, rank_only):
@@ -80,13 +83,16 @@ def display_list(hand, rank_only):
         return [str(c) for c in hand]
 
 
-def winner(play, deal):
+def winner(play, deal, tie_behavior):
     if cal_value(play) > cal_value(deal):
         return True
-
     elif cal_value(play) == cal_value(deal):
-        return False
-
+        if tie_behavior is "dealer_wins":
+            return False
+        elif tie_behavior is "player_wins":
+            return True
+        else:
+            return "Error"
     else:
         return False
 
@@ -135,8 +141,9 @@ def get_card(role, card_deck):
 
 def result(player: Player, dealer_hand,):
     print(player.name, display_list(player.hand, player.rank_only),
-          "Value: ",cal_value(player.hand),
-          "Bet Amount: ", player.bet_amount)
+          "Value: ", cal_value(player.hand),
+          "Bet Amount: ", player.bet_amount,
+          "Total Money: ", player.money)
     print("Dealer", display_list(dealer_hand, player.rank_only),
           'Value: ', cal_value(dealer_hand))
 
@@ -187,10 +194,10 @@ def dealer_turn(dealer, card_deck, strategy):
             return
 
 
-def check_winner(player: Player, dealer):
+def check_winner(player: Player, dealer, tie_behavior):
     if cal_value(player.hand) <= 21 and cal_value(dealer) <= 21:
         result(player, dealer)
-        return winner(player.hand, dealer)
+        return winner(player.hand, dealer, tie_behavior)
 
     elif cal_value(player.hand) > 21:
         result(player, dealer)
@@ -206,8 +213,10 @@ def give_money(win, player: Player):
         player.money = player.money + player.bet_amount * 2
     elif win is True:
         player.money = player.money + player.bet_amount
-    else:
+    elif win is False:
         player.money = player.money - player.bet_amount
+    else:
+        player.money = player.money
 
 
 def is_enough_money(player: Player):
