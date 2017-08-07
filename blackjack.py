@@ -10,6 +10,7 @@ Hand = List[card.Card]
 def main(data):
     size = len(data["players"])
     list_player = []
+    total_round = data["max_rounds"]
 
     for i in range(size):
         p_data = data["players"][i]
@@ -21,44 +22,52 @@ def main(data):
         list_player.append(new_player)
 
     while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
-        card_deck = start_game()
-        for p in list_player:
-            if p.betting_strategy == 'ask':
-                down(p)
-            elif p.betting_strategy == 'minimum':
-                val = data['minimum_bet']
-                if val in range(1, p.money + 1):
-                    p.bet_amount = val
+        start = 0
+        while start < total_round:
+            start = start + 1
+            print("GAME: ", start)
+            card_deck = start_game()
+            for p in list_player:
+                if p.betting_strategy == 'ask':
+                    down(p)
+                elif p.betting_strategy == 'minimum':
+                    val = data['minimum_bet']
+                    if val in range(1, p.money + 1):
+                        p.bet_amount = val
+                    else:
+                        p.bet_amount = p.money
                 else:
-                    p.bet_amount = p.money
-            else:
-                val = data['maximum_bet']
-                if val in range(1, p.money + 1):
-                    p.bet_amount = val
+                    val = data['maximum_bet']
+                    if val in range(1, p.money + 1):
+                        p.bet_amount = val
+                    else:
+                        p.bet_amount = p.money
+            for p in list_player:
+                get_start_hands(card_deck, p.hand)
+            dealer_hand = []
+            get_start_hands(card_deck, dealer_hand)
+            for p in list_player:
+                if p.strategy == 'player':
+                    player_turn(card_deck, p)
                 else:
-                    p.bet_amount = p.money
-            print(p.betting_strategy, p.bet_amount, p.money)
-        for p in list_player:
-            get_start_hands(card_deck, p.hand)
-        dealer_hand = []
-        get_start_hands(card_deck, dealer_hand)
-        for p in list_player:
-            if p.strategy == 'player':
-                player_turn(card_deck, p)
-            else:
-                dealer_turn(p.hand, card_deck, p.strategy)
+                    dealer_turn(p.hand, card_deck, p.strategy)
 
-        dealer_turn(dealer_hand, card_deck, data['dealer']['strategy'])
-        for p in list_player:
-            win = check_winner(p, dealer_hand)
-            give_money(win, p)
-        next_list = []
-        for p in list_player:
-            if is_enough_money(p):
-                next_list.append(p)
-        list_player = next_list
-        if len(list_player) == 0:
-            quit()
+            dealer_turn(dealer_hand, card_deck, data['dealer']['strategy'])
+            for p in list_player:
+                win = check_winner(p, dealer_hand)
+                give_money(win, p)
+            next_list = []
+            for p in list_player:
+                if is_enough_money(p):
+                    next_list.append(p)
+            list_player = next_list
+            if len(list_player) == 0:
+                quit()
+            for p in list_player:
+                if check_winner(p, dealer_hand) is True:
+                    print(p.name, "WIN!  Total money: ", p.money)
+                else:
+                    print(">>>", p.name, "LOSE!  Total money: ", p.money)
 
 
 def display_list(hand, rank_only):
@@ -70,15 +79,12 @@ def display_list(hand, rank_only):
 
 def winner(play, deal):
     if cal_value(play) > cal_value(deal):
-        print("Player Win!")
         return True
 
     elif cal_value(play) == cal_value(deal):
-        print("Tie Dealer Win!")
         return False
 
     else:
-        print("Dealer Win!")
         return False
 
 
@@ -125,9 +131,9 @@ def get_card(role, card_deck):
 
 
 def result(player: Player, dealer_hand,):
-    print(player.name, display_list(player.hand, player.rank_only), cal_value(player.hand),
-          'Value: ', cal_value(player.hand))
-    print("Dealer", display_list(dealer_hand, player.rank_only), cal_value(dealer_hand),
+    print(player.name, display_list(player.hand, player.rank_only),
+          "Value: ",cal_value(player.hand))
+    print("Dealer", display_list(dealer_hand, player.rank_only),
           'Value: ', cal_value(dealer_hand))
 
 
@@ -184,12 +190,10 @@ def check_winner(player: Player, dealer):
 
     elif cal_value(player.hand) > 21:
         result(player, dealer)
-        print("Player Lose! Over 21!")
         return False
 
     else:
         result(player, dealer)
-        print("Dealer Lose! Over 21!")
         return True
 
 
@@ -200,7 +204,6 @@ def give_money(win, player: Player):
         player.money = player.money + player.bet_amount
     else:
         player.money = player.money - player.bet_amount
-    print("total :", player.money)
 
 
 def is_enough_money(player: Player):

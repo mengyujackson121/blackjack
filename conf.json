@@ -1,5 +1,5 @@
 {
-    "max_rounds": 300,
+    "max_rounds": 10,
     "minimum_bet": 10,
     "maximum_bet": 50,
     "dealer": {
