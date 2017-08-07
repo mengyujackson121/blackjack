@@ -1,6 +1,7 @@
 {
     "max_rounds": 300,
     "minimum_bet": 10,
+    "maximum_bet": 50,
     "dealer": {
         "strategy": "H17"
     },
@@ -8,31 +9,36 @@
         {
             "name": "player 1",
             "starting_money": 100,
-            "strategy": "player",
+            "strategy": "S17",
+            "betting_strategy": "ask",
             "rank_only": true
         },
 		{
             "name": "player 2",
             "starting_money": 200,
-            "strategy": "player",
+            "strategy": "H17",
+            "betting_strategy": "minimum",
             "rank_only": true
         },
 		{
             "name": "player 3",
             "starting_money": 300,
-            "strategy": "player",
+            "strategy": "S17",
+            "betting_strategy": "maximum",
             "rank_only": false
         },
         {
             "name": "bot 1",
             "starting_money": 100,
             "strategy": "H17",
+            "betting_strategy": "maximum",
             "rank_only": true
         },
         {
             "name": "bot 2",
             "starting_money": 200,
             "strategy": "S17",
+            "betting_strategy": "maximum",
             "rank_only": false
         }
     ]

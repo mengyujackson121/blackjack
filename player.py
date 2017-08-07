@@ -1,15 +1,16 @@
 
 class Player:
-    def __init__(self, name="new_player", money=100, rank_only=True, strategy="H17"):
+    def __init__(self, name="new_player", money=100, rank_only=True, strategy="H17", betting_strategy="ask"):
         self.name = name
         self.money = money
         self.bet_amount = 0
         self.hand = []
         self.rank_only = rank_only
         self.strategy = strategy
+        self.betting_strategy = betting_strategy
     def __str__(self):
-        return "{:8.8} -> Money: {:5} Down: {:5} Hit: {} Hand: {}".format(
-            self.name, self.money, self.bet_amount, self.soft_hit, self.hand)
+        return "{:8.8} -> Money: {:5} betting : {:5} Down: {:5} Hit: {} Hand: {}".format(
+            self.name, self.money, self.betting_strategy, self.bet_amount, self.rank_only, self.hand)
 
     def __repr__(self):
         return self.name
