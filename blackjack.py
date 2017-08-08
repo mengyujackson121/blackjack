@@ -12,6 +12,7 @@ def main(data):
     list_player = []
     total_round = data["max_rounds"]
     tie_behavior = data["tie_behavior"]
+    blackjack_multiplier = data["blackjack_multiplier"]
 
     for i in range(size):
         p_data = data["players"][i]
@@ -24,28 +25,27 @@ def main(data):
 
     while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
         start = 0
+        for p in list_player:
+            p.bet_amount = 0
         while start < total_round:
             start = start + 1
-            print("GAME: ", start)
-            card_deck = start_game()
             for p in list_player:
                 if p.betting_strategy == 'ask':
-                    if p.bet_amount == 0:
-                        down(p)
-                    else:
-                        continue
+                    down(p)
                 elif p.betting_strategy == 'minimum':
                     val = data['minimum_bet']
-                    if val in range(1, p.money + 1):
+                    if val in range(1, int(p.money) + 1):
                         p.bet_amount = val
                     else:
                         p.bet_amount = p.money
                 else:
                     val = data['maximum_bet']
-                    if val in range(1, p.money + 1):
+                    if val in range(1, int(p.money) + 1):
                         p.bet_amount = val
                     else:
-                        p.bet_amount = p.money
+                        p.bet_amount = int(p.money)
+            print("GAME: ", start)
+            card_deck = start_game()
             for p in list_player:
                 get_start_hands(card_deck, p.hand)
             dealer_hand = []
@@ -58,8 +58,8 @@ def main(data):
 
             dealer_turn(dealer_hand, card_deck, data['dealer']['strategy'])
             for p in list_player:
-                win = check_winner(p, dealer_hand, tie_behavior)
-                give_money(win, p)
+                result = check_winner(p, dealer_hand, tie_behavior)
+                give_money(result, p, blackjack_multiplier)
             next_list = []
             for p in list_player:
                 if is_enough_money(p):
@@ -68,12 +68,12 @@ def main(data):
             if len(list_player) == 0:
                 quit()
             for p in list_player:
-                if check_winner(p, dealer_hand, tie_behavior) is True:
+                if check_winner(p, dealer_hand, tie_behavior) == "player_win":
                     print(">>>", p.name, "WIN!  Total money: ", p.money)
-                elif check_winner(p, dealer_hand, tie_behavior) is False:
+                elif check_winner(p, dealer_hand, tie_behavior) == "dealer_win":
                     print(">>>", p.name, "LOSE!  Total money: ", p.money)
                 else:
-                    print(">>>NO WINNER!", p.name, p.money)
+                    print(">>>NO WINNER! Tie Game....", p.name, p.money)
 
 
 def display_list(hand, rank_only):
@@ -85,16 +85,11 @@ def display_list(hand, rank_only):
 
 def winner(play, deal, tie_behavior):
     if cal_value(play) > cal_value(deal):
-        return True
+        return "player_win"
     elif cal_value(play) == cal_value(deal):
-        if tie_behavior is "dealer_wins":
-            return False
-        elif tie_behavior is "player_wins":
-            return True
-        else:
-            return "Error"
+        return tie_behavior
     else:
-        return False
+        return "dealer_win"
 
 
 def is_soft(hand):
@@ -151,8 +146,8 @@ def result(player: Player, dealer_hand,):
 def down(player: Player):
     while True:
         try:
-            val = int(input(player.name + ": How much down? (1 - " + str(player.money) + "): "))
-            if val in range(1, player.money + 1):
+            val = int(input(player.name + ": How much down for next Game? (1 - " + str(player.money) + "): "))
+            if val in range(1, int(player.money) + 1):
                 player.bet_amount = val
                 return
         except ValueError:
@@ -201,19 +196,19 @@ def check_winner(player: Player, dealer, tie_behavior):
 
     elif cal_value(player.hand) > 21:
         result(player, dealer)
-        return False
+        return "dealer_win"
 
     else:
         result(player, dealer)
-        return True
+        return "player_win"
 
 
-def give_money(win, player: Player):
-    if win is True and len(player.hand) == 2 and cal_value(player.hand) == 21:
-        player.money = player.money + player.bet_amount * 2
-    elif win is True:
+def give_money(result, player: Player, blackjack_multiplier):
+    if result == "player_win" and len(player.hand) == 2 and cal_value(player.hand) == 21:
+        player.money = int(player.money + player.bet_amount * blackjack_multiplier)
+    elif result == "player_win":
         player.money = player.money + player.bet_amount
-    elif win is False:
+    elif result == "dealer_win":
         player.money = player.money - player.bet_amount
     else:
         player.money = player.money
