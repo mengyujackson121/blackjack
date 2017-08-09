@@ -16,11 +16,11 @@ def main(data):
 
     for i in range(size):
         p_data = data["players"][i]
-        new_player = Player(name=p_data["name"],
-                            money=int(p_data["starting_money"]),
-                            rank_only=p_data["rank_only"],
-                            strategy=p_data["strategy"],
-                            betting_strategy=p_data["betting_strategy"])
+        new_player = Player(name=p_data.get("name", 'DP'),
+                            money=p_data.get("starting_money", 100),
+                            rank_only=p_data.get("rank_only", True),
+                            strategy=p_data.get("strategy", 'H17'),
+                            betting_strategy=p_data.get("betting_strategy", 'ask'))
         list_player.append(new_player)
 
     while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':

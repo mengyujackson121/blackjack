@@ -21,7 +21,6 @@
             "name": "player 2",
             "starting_money": 200,
             "strategy": "H17",
-            "betting_strategy": "minimum",
             "rank_only": true
         },
 		{
