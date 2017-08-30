@@ -85,7 +85,7 @@ def display_list(hand, rank_only):              #
         return [str(c) for c in hand]
 
 
-def winner(play, deal, tie_behavior):
+def winner(play, deal, tie_behavior):           # Check who is the winner and if is a tie game who win
     if cal_value(play) > cal_value(deal):
         return "player_win"
     elif cal_value(play) == cal_value(deal):
