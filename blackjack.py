@@ -1,73 +1,75 @@
-from typing import List
+from typing import List     # ?
 import random
 import card
 import json
 from player import Player
 import argparse
-Hand = List[card.Card]
+Hand = List[card.Card]      # ?
 
 
 def main(data):
-    size = len(data["players"])
-    list_player = []
-    total_round = data["max_rounds"]
-    tie_behavior = data["tie_behavior"]
-    blackjack_multiplier = data["blackjack_multiplier"]
+    size = len(data["players"])             # get data from json for player size
+    list_player = []                        # empty list for player name
+    total_round = data["max_rounds"]        # total round for each set of game
+    tie_behavior = data["tie_behavior"]     # if is tie game
+    blackjack_multiplier = data["blackjack_multiplier"]     # if blackjack, how much time bet for win
 
-    for i in range(size):
+    for i in range(size):                   # read player data from json
         p_data = data["players"][i]
         new_player = Player(name=p_data.get("name", 'DP'),
                             money=p_data.get("starting_money", 100),
                             rank_only=p_data.get("rank_only", True),
                             strategy=p_data.get("strategy", 'H17'),
                             betting_strategy=p_data.get("betting_strategy", 'ask'))
-        list_player.append(new_player)
+        list_player.append(new_player)      # list of continue player
 
-    while input("Wanna Start a New Game? (q for quit, any key contiune...)") != 'q':
-        start = 0
-        for p in list_player:
+    while input("Wanna Start a New Game? (q for quit, any key continue...)") != 'q':    # ask for new game
+        game = 0                                       # start count game
+        for p in list_player:                          # reset bet amount
             p.bet_amount = 0
-        while start < total_round:
-            start = start + 1
-            for p in list_player:
-                if p.betting_strategy == 'ask':
+        while game < total_round:                      # check if need stop play game
+            game = game + 1
+            for p in list_player:                      # check bet strategy
+                if p.betting_strategy == 'ask':        # if ask, input amount
                     down(p)
-                elif p.betting_strategy == 'minimum':
+                elif p.betting_strategy == 'minimum':  # input minimum amount (JSON)
                     val = data['minimum_bet']
                     if val in range(1, int(p.money) + 1):
                         p.bet_amount = val
                     else:
                         p.bet_amount = p.money
-                else:
+                else:                                  # input maximum amout (JSON)
                     val = data['maximum_bet']
                     if val in range(1, int(p.money) + 1):
                         p.bet_amount = val
                     else:
                         p.bet_amount = int(p.money)
-            print("GAME: ", start)
-            card_deck = start_game()
-            for p in list_player:
+            print("GAME: ", game)
+            card_deck = start_game()                   # get deck
+            for p in list_player:                      # get hand for each player
                 get_start_hands(card_deck, p.hand)
             dealer_hand = []
-            get_start_hands(card_deck, dealer_hand)
-            for p in list_player:
+            get_start_hands(card_deck, dealer_hand)    # get hand for dealer
+            for p in list_player:                      # check each player strategy
                 if p.strategy == 'player':
                     player_turn(card_deck, p)
                 else:
                     dealer_turn(p.hand, card_deck, p.strategy)
 
-            dealer_turn(dealer_hand, card_deck, data['dealer']['strategy'])
-            for p in list_player:
+            dealer_turn(dealer_hand, card_deck, data['dealer']['strategy'])  # dealer's turn
+            for p in list_player:                      # check the result see who win the game
                 result = check_winner(p, dealer_hand, tie_behavior)
                 give_money(result, p, blackjack_multiplier)
             next_list = []
             for p in list_player:
+                                                       # check each money left for all player,
+                                                       # kick out the one don't have money
                 if is_enough_money(p):
                     next_list.append(p)
             list_player = next_list
-            if len(list_player) == 0:
+            if len(list_player) == 0:                  # Without player can't continue games
                 quit()
-            for p in list_player:
+            for p in list_player:                      # Print the Winner.
                 if check_winner(p, dealer_hand, tie_behavior) == "player_win":
                     print(">>>", p.name, "WIN!  Total money: ", p.money)
                 elif check_winner(p, dealer_hand, tie_behavior) == "dealer_win":
@@ -76,7 +78,7 @@ def main(data):
                     print(">>>NO WINNER! Tie Game....", p.name, p.money)
 
 
-def display_list(hand, rank_only):
+def display_list(hand, rank_only):              #
     if rank_only:
         return [c.rank for c in hand]
     else:

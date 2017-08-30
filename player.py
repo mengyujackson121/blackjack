@@ -19,22 +19,3 @@ class Player:
 
     def __repr__(self):
         return self.name
-
-
-def main():
-    p1 = Player("12345676890")
-    p2 = Player("p2")
-    p3 = Player("p3")
-    p4 = Player("p4")
-    p1.money = 10
-    p2.money = 20
-    print(p1)
-    print(p2)
-    pees = [p1, p2, p3, p4]
-    for p in pees:
-        print("\t", p)
-    print(pees)
-
-
-if __name__ == '__main__':
-    main()

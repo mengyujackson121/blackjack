@@ -37,29 +37,25 @@ class Card():
 
         return string
 
-
-def main():
-    import random
-    deck = [Card(rank, suit)
-            for rank in ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
-            for suit in ("C", "D", "H", "S")]
-    random.shuffle(deck)
-    for count, card in enumerate(deck):
-        if count % 4 == 0:
-            print(card)
-        elif count % 4 == 1:
-            print(card.rank)
-        elif count % 4 == 2:
-            print(card.long())
-        elif count % 4 == 3:
-            print(card.long(rank_only=True))
+#
+# def main():
+#     import random
+#     deck = [Card(rank, suit)
+#             for rank in ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
+#             for suit in ("C", "D", "H", "S")]
+#     random.shuffle(deck)
+#     for count, card in enumerate(deck):
+#         if count % 4 == 0:
+#             print(card)
+#         elif count % 4 == 1:
+#             print(card.rank)
+#         elif count % 4 == 2:
+#             print(card.long())
+#         elif count % 4 == 3:
+#             print(card.long(rank_only=True))
 
 
 def standard_deck():
     return [Card(rank, suit)
             for rank in ("A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K")
             for suit in ("C", "D", "H", "S")]
-
-
-if __name__ == "__main__":
-    main()
