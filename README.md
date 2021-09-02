@@ -3,11 +3,11 @@ This is a personal project to demonstrate knowledge of (and to practice) version
 Currently this is single player blackjack against a dealer, and nothing is saved between runs of the program. 
 
 
-##Installation
+## Installation
 ```
 git clone https://github.com/mengyujackson121/blackjack.git
 ```
-##Run
+## Run
 ```bash
 python blackjack.py
 ```
